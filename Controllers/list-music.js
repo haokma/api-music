@@ -60,10 +60,10 @@ module.exports = {
       const { id } = req;
       const { idMusic, nameList } = req.body;
       const account = await mongooseAccount.findById(id);
-      const music = await mongooseMusic.findById(idMusic);
+      // const music = await mongooseMusic.findById(idMusic);
       if (!account)
         return res.status(401).json({ message: "account not found" });
-      if (!music) return res.status(401).json({ message: "music not found" });
+      // if (!music) return res.status(401).json({ message: "music not found" });
       const newListMusic = new mongooseListMusic({
         _id: new mongoose.Types.ObjectId(),
         id_account: id,
@@ -73,19 +73,6 @@ module.exports = {
         updatedAt: create,
       });
       const listMusic = await newListMusic.save();
-      if (listMusic) {
-        const arrayMusic = new mongooseArrayMusic({
-          _id: new mongoose.Types.ObjectId(),
-          id_account: id,
-          id_music: idMusic,
-          music,
-          id_list: listMusic._id,
-          createdAt: create,
-          updatedAt: create,
-        });
-        const resultArrayMusic = await arrayMusic.save();
-        listMusic.array_music.push(resultArrayMusic);
-      }
       res.json({
         data: listMusic,
       });
