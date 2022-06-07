@@ -183,47 +183,13 @@ const musicControllers = {
         return res.status(401).json({ messages: "account not found" });
 
       const _id = req.params._id;
-      const music = await mongooseMusic.findById(_id);
-      const imageMusicNew = req.files["image_music"];
-      if (imageMusicNew) {
-        const resultImageMusic = await cloudinary.v2.uploader.upload(
-          imageMusicNew[0].path,
-          { folder: "thumbnail" }
-        );
-        var image_music_new = resultImageMusic.url;
-      }
-      const { name_singer_new, name_music_new, category_new } = req.body;
-      const updatedMusic = {
-        ...music._doc,
-        name_singer: name_singer_new || music.name_singer,
-        name_music: name_music_new || music.name_music,
-        category: category_new || music.category,
-        image_music: image_music_new || music.image_music,
-        slug_name_singer: vnmToAlphabet(
-          (name_singer_new || music.name_singer)
-            .trim()
-            .toLowerCase()
-            .replace(/ /g, "-")
-        ),
-        slug_name_music: vnmToAlphabet(
-          (name_music_new || music.name_music)
-            .trim()
-            .toLowerCase()
-            .replace(/ /g, "-")
-        ),
-        slug_category: vnmToAlphabet(
-          (category_new || music.category)
-            .trim()
-            .toLowerCase()
-            .replace(/ /g, "-")
-        ),
-      };
-      console.log(`updatedMusic=${updatedMusic.name_singer}`);
-      const resMusic = await mongooseMusic.findByIdAndUpdate(
-        _id,
-        updatedMusic,
-        { new: true }
-      );
+
+      const { name_singer, category, link_mv, name_music } = req.body;
+
+      const data = { name_singer, category, link_mv, name_music };
+      const resMusic = await mongooseMusic.findByIdAndUpdate(_id, data, {
+        new: true,
+      });
       console.log(`resMusic = ${resMusic}`);
       res.json({
         data: resMusic,
@@ -264,7 +230,7 @@ const musicControllers = {
   },
   GET_BY_ID: async (req, res) => {
     try {
-      const { _id } = req.query;
+      const { _id } = req.params;
       const music = await mongooseMusic.findById(_id);
       if (!music) return res.status(404).json({ message: "music not found" });
       const result = await mongooseMusic.findByIdAndUpdate(
